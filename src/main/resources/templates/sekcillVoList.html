@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="/javascript/bootstrap/bootstrap.min.css">
+    <script src="/javascript/bootstrap/jquery.min.js"></script>
+    <script src="/javascript/bootstrap/popper.min.js"></script>
+    <script src="/javascript/bootstrap/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/seckillVoList.css">
+
+    <script>
+        function seckillVo(seckillId, token) {
+            window.location = `http://127.0.0.1:8080/get/seckillVo/${seckillId}/${token}`;
+        }
+
+        function login() {
+            window.location = "http://127.0.0.1:8080/post/login";
+        }
+        /**
+         * @return {string}
+         */
+        function GMTToStr(time) {
+            let date = new Date(time);
+            return date.getFullYear() + '-' +
+                (date.getMonth() + 1) + '-' +
+                date.getDate() + ' ' +
+                date.getHours() + ':' +
+                date.getMinutes() + ':' +
+                date.getSeconds()
+        }
+
+        function getToken() {
+            let query = window.location.href;
+            let add = query.split("/");
+            return add[add.length - 1].toString();
+        }
+
+    </script>
+</head>
+
+<body>
+
+<nav class="container-fluid navbar d-flex justify-content-between bg-dark text-white">
+    <div class="p-2">
+        <h3 class="nav">秒杀</h3>
+    </div>
+    <div class="p-2">
+        <button class="btn btn-success nav" onclick="login()" id="btn_login">登陆</button>
+    </div>
+</nav>
+
+<div class="container-fluid" th:each="seckillVo : ${sekcillVoList}">
+    <div class="col-md-12 navbar navbar-expand-md bg-secondary navbar-dark">
+        <ul class="col-md-12 navbar-nav">
+            <li class="col-md-2 nav-item active">
+                <p class="nav-link" href="#" th:text="${seckillVo.getCommodityName()}"></p>
+            </li>
+            <li class="col-md-3 nav-item active">
+                <p class="nav-link" href="#" th:text="${seckillVo.getCommodityTitle()}"></p>
+            </li>
+            <li class="col-md-1 nav-item active">
+                <p class="nav-link" href="#" th:text="${seckillVo.getSeckillPrice()}"></p>
+            </li>
+            <li class="col-md-2 nav-item active">
+                <p class="nav-link" th:id="startTime+(${seckillVo.getSeckillId()})" href="#" th:text="'开始时间:'+${seckillVo.getStartTime()}"></p>
+            </li>
+            <li class="col-md-2 nav-item active">
+                <p class="nav-link" th:id="endTime+(${seckillVo.getSeckillId()})" href="#" th:text="'结束时间:'+${seckillVo.getEndTime()}"></p>
+            </li>
+            <li class="col-md-1 nav-item active">
+                <p class="nav-link" href="#" th:text="'库存:'+${seckillVo.getSeckillStock()}"></p>
+            </li>
+            <script>
+                document.getElementById("startTime"+[[${seckillVo.getSeckillId()}]]).innerHTML = '开始时间:'+GMTToStr('[[${seckillVo.getStartTime()}]]');
+                document.getElementById("endTime"+[[${seckillVo.getSeckillId()}]]).innerHTML = '结束时间:'+GMTToStr('[[${seckillVo.getEndTime()}]]');
+            </script>
+            <button class="col-md-1 btn btn-success" type="submit"
+                    th:onclick="seckillVo([[${seckillVo.getSeckillId()}]], getToken());">详情
+            </button>
+        </ul>
+
+    </div>
+</div>
+
+<script>
+    let keys = getToken().split("-");
+    if(keys.length === 6) {
+        document.getElementById("btn_login").innerHTML = keys[0];
+        document.getElementById("btn_login").onclick = null;
+    }else {
+        let a = window.location.href.split("/"), str = "";
+        if(a[a.length-1] !== "guest") {
+            a[a.length-1]="guest";
+            window.location.href = a.join('/');
+        }
+    }
+</script>
+
+</body>
+</html>

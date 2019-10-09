@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" http-equiv="refresh" content="5">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="/javascript/bootstrap/bootstrap.min.css">
+    <script src="/javascript/bootstrap/jquery.min.js"></script>
+    <script src="/javascript/bootstrap/popper.min.js"></script>
+    <script src="/javascript/bootstrap/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/seckillVo.css">
+    <script>
+        function checkTime(startTime, endTime) {
+            let start = new Date(startTime);
+            let end = new Date(endTime);
+            let now = new Date();
+            if (start >= now) return "尚未开始";
+            if (start < now && now <= end) return "开始秒杀";
+            return "秒杀结束";
+        }
+        function login() {
+            window.location = "http://127.0.0.1:8080/post/login"
+        }
+        function startSeckill(startTime, endTime, seckillId, token){
+            if(checkTime(startTime, endTime) === "开始秒杀"){
+                window.location = `http://127.0.0.1:8080/post/orderVo/${seckillId}/${token}`;
+            }
+        }
+        /**
+         * @return {string}
+         */
+        function GMTToStr(time) {
+            let date = new Date(time);
+            return date.getFullYear() + '-' +
+                (date.getMonth() + 1) + '-' +
+                date.getDate() + ' ' +
+                date.getHours() + ':' +
+                date.getMinutes() + ':' +
+                date.getSeconds()
+        }
+
+        function getToken() {
+            let query = window.location.href;
+            let add = query.split("/");
+            return add[add.length - 1];
+        }
+    </script>
+</head>
+
+<body>
+
+<nav class="container-fluid navbar d-flex justify-content-between bg-dark text-white">
+    <div class="p-2">
+        <h3 class="nav">秒杀</h3>
+    </div>
+    <div class="p-2">
+    <button class="btn btn-success nav" onclick="login()" id="btn_login">登陆</button>
+    </div>
+</nav>
+<div class="container" style="margin-top:200px">
+    <div class="row">
+        <div class="col-md-4">
+            <h2 th:text="${seckillVo.getCommodityName()}"></h2>
+            <img th:src="${seckillVo.getCommodityImg()}" width="300px">
+
+        </div>
+        <div class="col-md-8">
+            <h2 th:text="${seckillVo.getCommodityTitle()}"></h2>
+            <h5 th:text="${seckillVo.getCommodityDetail()}"></h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <strong id="startTime" th:text="${seckillVo.getStartTime()}"></strong><br>
+                    <strong id="endTime" th:text="${seckillVo.getEndTime()}"></strong>
+                </div>
+                <div class="col-md-4">
+                    <strong><s>原价：<span th:text="${seckillVo.getCommodityPrice()}"></span></s></strong>
+                    <strong>秒杀：<span th:text="${seckillVo.getSeckillPrice()}"></span></strong>
+                    <button class="btn btn-success" type="submit" id="seckill"
+                            th:onclick="startSeckill([[${seckillVo.getStartTime()}]], [[${seckillVo.getEndTime()}]], [[${seckillVo.getSeckillId()}]], getToken());" th:text="开始秒杀">
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    document.getElementById("startTime").innerHTML = '开始时间:' + GMTToStr([[${seckillVo.getStartTime()}]]);
+    document.getElementById("endTime").innerHTML = '结束时间:' + GMTToStr([[${seckillVo.getEndTime()}]]);
+    document.getElementById("seckill").innerHTML = checkTime([[${seckillVo.getStartTime()}]], [[${seckillVo.getEndTime()}]]);
+    let keys = getToken().split("-");
+    if(keys.length === 6) {
+        document.getElementById("btn_login").innerHTML = keys[0];
+        document.getElementById("btn_login").onclick = null;
+    }else {
+        let a = window.location.href.split("/");
+        if(a[a.length-1] !== "guest") {
+            a[a.length-1]="guest";
+            window.location.href = a.join('/');
+        }
+    }
+</script>
+</body>
+</html>
