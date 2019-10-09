@@ -1,23 +1,33 @@
-# Getting Started
+1.登录界面
+http://127.0.0.1:8080/post/login
 
-### Reference Documentation
-For further reference, please consider the following sections:
+获取用户名和密码，在点击登录按钮时将密码发送到隐藏的文本框中并进行MD5加密。
+然后将数据发送至后台。
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/maven-plugin/)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications)
-* [Spring for RabbitMQ](https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/htmlsingle/#boot-features-amqp)
-* [MyBatis Framework](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
-* [Thymeleaf](https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-template-engines)
+后台获取用户名和密码，根据固定MD5的salt以及数据库中的用户名及密码进行MD5匹配，若成功
+跳转页面，否则发送相关信息至前端。
+登陆Token存储在redis中，超过60分钟后需要重新登陆。Token使用了UUID，有唯一性
 
-### Guides
-The following guides illustrate how to use some features concretely:
+2.商品列表界面
+http://127.0.0.1:8080/get/seckillVo/list/guest
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/bookmarks/)
-* [Messaging with RabbitMQ](https://spring.io/guides/gs/messaging-rabbitmq/)
-* [MyBatis Quick Start](https://github.com/mybatis/spring-boot-starter/wiki/Quick-Start)
-* [Handling Form Submission](https://spring.io/guides/gs/handling-form-submission/)
+使用了JavaScript + thymleaf + bootstrap4 进行数据操作及排版，页面由redis进行静态化处理。
 
-# seckill
+读取数据库中的所有秒杀商品，页面静态化。
+
+3.商品界面
+http://127.0.0.1:8080/get/seckillVo/4/guest
+使用了JavaScript + thymleaf + bootstrap4 进行数据操作及排版，页面由redis进行静态化处理。
+秒杀时消息发送至后台。
+
+读取对应秒杀商品的数据库信息，页面静态化。
+
+4.订单页面
+http://127.0.0.1:8080/post/orderVo/1/18640284787-70498785-daff-4252-9eb2-d4ddfbb26c67  使用了Token，有唯一性
+对商品页面进行了部分修改，添加了订单信息部分，点击完成秒杀按钮时发送消息至后台。
+
+读取对应秒杀商品的数据库信息，页面静态化。
+秒杀时消息发送至MQ进行限流。
+接着消费者收到消息，首先在redis中进行库存消费，若库存足够，则在数据库中进行读写。
+
+
